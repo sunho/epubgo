@@ -108,6 +108,10 @@ func (e Epub) OpenFileId(id string) (io.ReadCloser, error) {
 	return openFile(e.zip, e.rootPath+path)
 }
 
+func (e Epub) FileName(id string) string {
+	return e.opf.filePath(id)
+}
+
 // Navigation returns a navigation iterator
 func (e Epub) Navigation() (*NavigationIterator, error) {
 	if e.ncx == nil {
@@ -165,4 +169,36 @@ func (e Epub) MetadataAttr(field string) ([]map[string]string, error) {
 	}
 
 	return nil, errors.New("Field " + field + " don't exists")
+}
+
+// Meta returns the contents of meta
+func (e Epub) Meta(name string) (contents []string, err error) {
+	meta, err := e.MetadataAttr("meta")
+	if err != nil {
+		return
+	}
+
+	for _, attr := range meta {
+		if attr["name"] == name {
+			contents = append(contents, attr["content"])
+		}
+	}
+
+	return
+}
+
+// Cover returns the id of cover image
+func (e Epub) Cover() string {
+	contents, _ := e.Meta("cover")
+	if len(contents) > 0 {
+		return contents[0]
+	}
+
+	for _, m := range e.opf.Manifest {
+		if m.Properties == "cover-image" {
+			return m.ID
+		}
+	}
+
+	return ""
 }
