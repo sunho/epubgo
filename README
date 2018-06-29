@@ -1,3 +1,4 @@
-A pure go implementation of epub file format.
+Tweaked a bit
 
-Still on development.
+ - exposed some variables
+ - added some utility functions
